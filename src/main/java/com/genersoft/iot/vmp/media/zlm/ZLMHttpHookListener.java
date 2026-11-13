@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.genersoft.iot.vmp.common.enums.MediaStreamUtil;
 import com.genersoft.iot.vmp.conf.MediaConfig;
 import com.genersoft.iot.vmp.conf.UserSetting;
+import com.genersoft.iot.vmp.conf.VideoConfig;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.media.bean.ResultForOnPublish;
 import com.genersoft.iot.vmp.media.event.media.*;
@@ -15,9 +16,11 @@ import com.genersoft.iot.vmp.media.zlm.dto.hook.*;
 import com.genersoft.iot.vmp.media.zlm.event.HookZlmServerKeepaliveEvent;
 import com.genersoft.iot.vmp.media.zlm.event.HookZlmServerStartEvent;
 import com.genersoft.iot.vmp.service.IMediaService;
+import com.genersoft.iot.vmp.service.WvpNoticeService;
 import com.genersoft.iot.vmp.utils.MediaServerUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.ObjectUtils;
@@ -55,6 +58,12 @@ public class ZLMHttpHookListener {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private VideoConfig videoConfig;
+
+    @Autowired
+    private WvpNoticeService wvpNoticeService;
 
 
     /**
@@ -102,9 +111,16 @@ public class ZLMHttpHookListener {
     @ResponseBody
     @PostMapping(value = "/on_publish", produces = "application/json;charset=UTF-8")
     public HookResultForOnPublish onPublish(@RequestBody OnPublishHookParam param) {
+        log.info("[ZLM HOOK]推流鉴权：{}->{}", param.getMediaServerId(), param);
 
         JSONObject json = (JSONObject) JSON.toJSON(param);
-
+        if(checkTaskProxyApp(param.getApp())){
+            wvpNoticeService.sendZlmStreamHook(param.getApp(),param.getStream(),1);
+            HookResultForOnPublish result = HookResultForOnPublish.SUCCESS();
+            result.setEnable_mp4(videoConfig.isTaskStreamEnableMp4());
+            result.setEnable_audio(false);
+            return result;
+        }
         log.info("[ZLM HOOK]推流鉴权：{}->{}", param.getMediaServerId(), param);
         // TODO 加快处理速度
 
@@ -134,6 +150,12 @@ public class ZLMHttpHookListener {
     @ResponseBody
     @PostMapping(value = "/on_stream_changed", produces = "application/json;charset=UTF-8")
     public HookResult onStreamChanged(@RequestBody OnStreamChangedHookParam param) {
+        if(checkTaskProxyApp(param.getApp())){
+            if(!param.isRegist()){
+                wvpNoticeService.sendZlmStreamHook(param.getApp(),param.getStream(),0);
+            }
+            return HookResult.SUCCESS();
+        }
         MediaServer mediaServer = mediaServerService.getOne(param.getMediaServerId());
         if (mediaServer == null) {
             return HookResult.SUCCESS();
@@ -324,5 +346,9 @@ public class ZLMHttpHookListener {
         }
 
         return HookResult.SUCCESS();
+    }
+
+    private boolean checkTaskProxyApp(String app){
+        return StringUtils.isNotBlank(app) && app.equalsIgnoreCase(videoConfig.getTaskStreamApp());
     }
 }

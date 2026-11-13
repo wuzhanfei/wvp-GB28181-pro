@@ -1,10 +1,12 @@
 package com.genersoft.iot.vmp.common;
 
+import com.genersoft.iot.vmp.internal.streamProxy.enums.PreviewModeEnum;
 import com.genersoft.iot.vmp.media.bean.MediaInfo;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.service.bean.DownloadFileInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -367,6 +369,18 @@ public class StreamInfo implements Serializable, Cloneable{
             e.printStackTrace();
         }
         return instance;
+    }
+
+    public String getByMode(String mode,boolean ssl){
+        if(StringUtils.isBlank(mode)){
+            return ssl?this.https_flv.getUrl():this.flv.getUrl();
+        }
+        String url = switch (PreviewModeEnum.getByMode(mode)) {
+            case WEBRTC -> ssl?this.rtcs.getUrl():this.rtc.getUrl();
+            case HLS -> ssl?this.https_hls.getUrl():this.hls.getUrl();
+            default -> ssl?this.https_flv.getUrl():this.flv.getUrl();
+        };
+        return url;
     }
 
 }

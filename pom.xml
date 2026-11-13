@@ -103,6 +103,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>cn.iocoder.cloud</groupId>
+            <artifactId>yudao-common</artifactId>
+            <version>2.6.0-jdk11-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
@@ -404,6 +409,28 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-mqtt</artifactId>
+            <version>5.5.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-integration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+            <version>2023.0.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            <version>2023.0.3.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -470,13 +497,13 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.2</version>
                 <configuration>
-                    <excludes>
-                        <exclude>**/配置详情.yml</exclude>
-                        <exclude>**/application.yml</exclude>
-                        <exclude>**/application-*.yml</exclude>
-                        <exclude>**/local.jks</exclude>
-                        <exclude>**/install.sh</exclude>
-                    </excludes>
+<!--                    <excludes>-->
+<!--                        <exclude>**/配置详情.yml</exclude>-->
+<!--                        <exclude>**/application.yml</exclude>-->
+<!--                        <exclude>**/application-*.yml</exclude>-->
+<!--                        <exclude>**/local.jks</exclude>-->
+<!--                        <exclude>**/install.sh</exclude>-->
+<!--                    </excludes>-->
                 </configuration>
             </plugin>
             <plugin>

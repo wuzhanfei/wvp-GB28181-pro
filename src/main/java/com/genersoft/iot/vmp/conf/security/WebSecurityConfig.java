@@ -103,6 +103,9 @@ public class WebSecurityConfig {
         defaultExcludes.add("/api/jt1078/playback/download");
         defaultExcludes.add("/api/jt1078/snap");
 
+        //开放接口供内部服务feign调用
+        defaultExcludes.add("/internal/**");
+
         if (userSetting.getInterfaceAuthentication() && !userSetting.getInterfaceAuthenticationExcludes().isEmpty()) {
             defaultExcludes.addAll(userSetting.getInterfaceAuthenticationExcludes());
         }
